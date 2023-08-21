@@ -1,0 +1,48 @@
+{
+  "accounts": [
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_d0a01ce4aab6b2827fa271988aeab5f8c2"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_9cb5b0f09b6a5d8f9c8ef28622bff8bf60"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_776074734a5ca59ff75e294ac67446cbbc"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_5b71c366909957ccc62d7956dd83465eaf"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_04093ff404fc43fd2cee8d84891a7b2993"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_0e31ae9453bd84fbdf6e6cb5c280c07328"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_5b3284dfc57b74b0fdee806e6f8ffe1905"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_91033f25269f3532e7c90c1967296a6a44"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_3f2aaa4e1f0fc537efc4843aed3579db74"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_6e5a03d3ec86e43a781ff14d9a5fb35ecc"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_868f663b11ca5cc0c7c3d65dee434b0f6f"
+    }
+  ]
+}

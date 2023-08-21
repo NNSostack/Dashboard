@@ -1,0 +1,1 @@
+<script src="/wp-content/dashboard/client/templates.js"></script>

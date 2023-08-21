@@ -1,0 +1,54 @@
+{
+  "accounts": [
+    {
+      "name": "klaviyo",
+      "metrics": [
+        {
+          "name": "Active on Site",
+          "id": "1",
+          "Threshold": {
+            "Warning": -10,
+            "Error": -20,
+            "TimespanSize": 14
+          }
+        },
+        {
+          "name": "Placed Order",
+          "id": "2",
+          "Threshold": {
+            "Warning": -10,
+            "Error": -20,
+            "TimespanSize": 14
+          }
+        },
+        {
+          "name": "Added to Cart",
+          "id": "3",
+          "Threshold": {
+            "Warning": -10,
+            "Error": -20,
+            "TimespanSize": 14
+          }
+        },
+        {
+          "name": "Checkout Started",
+          "id": "4",
+          "Threshold": {
+            "Warning": -10,
+            "Error": -20,
+            "TimespanSize": 14
+          }
+        },
+        {
+          "name": "Viewed Product",
+          "id": "5",
+          "Threshold": {
+            "Warning": -10,
+            "Error": -20,
+            "TimespanSize": 14
+          }
+        }
+      ]
+    }
+  ]
+}
