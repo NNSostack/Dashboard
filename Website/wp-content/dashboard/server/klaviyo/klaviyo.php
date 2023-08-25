@@ -13,6 +13,8 @@ class Klaviyo {
     private ?array $accounts = null;  
     private ?array $accountsGlobal = null;    
     private ?string $accountName = null;
+    private ?string $accountId = null;
+    private array $accountNames = [];
 
 	private string $campaignBodyTemplate = '{ 
     "data": {
@@ -33,6 +35,7 @@ class Klaviyo {
 }';
 
 	function __construct($accounts, $accountsGlobal) {
+        $this->apiKey = $accounts[0]["apiKey"];
         $this->accounts = $accounts;
         $this->accountsGlobal = $accountsGlobal;
     }
@@ -70,6 +73,12 @@ class Klaviyo {
         $accounts = $httpClient->Get();
         foreach($accounts["data"] as $account){
             $this->accountName = $account["attributes"]["contact_information"]["organization_name"];
+            $this->accountId = $account["id"];
+
+            $a = new StdClass();
+            $a->name = $this->accountName;
+            $a->id = $this->accountId;
+            array_push($this->accountNames, $a);
         }
         
     }
@@ -139,7 +148,7 @@ class Klaviyo {
         foreach ($metricObj->data as $cname => $metric){
             $campaign = null;
             if(!array_key_exists($cname, $campaigns)){
-                $campaigns[$cname] = new Campaign($cname, $this->accountName);
+                $campaigns[$cname] = new Campaign($cname, $this->accountName, $this->accountId);
             }
 
             $campaign = $campaigns[$cname];
@@ -242,23 +251,61 @@ class Klaviyo {
         return true;
     }
 
-    private function getHttpClient($url, $cachTimeout){
+    private function getHttpClient($url, $cachTimeout = 0){
         $httpClient = Repositories::GetHttpClient($this->apiKey, $cachTimeout);
 		$httpClient->Init($url, "application/json", [ "Authorization: Klaviyo-API-Key {$this->apiKey}", "revision: {$this->revision}"]);
         return $httpClient;
+    }
+
+    public function getEvents(){
+        $eventsCollection = [];
+        
+        $eventsCollection = array_merge($eventsCollection, $this->getNext("https://a.klaviyo.com/api/events/?filter=equals(metric_id,'S4KV7F')", 1, 1));
+        return $eventsCollection;
+    }
+
+    public function getAccounts(){
+        // Asc sort
+        usort($this->accountNames,function($first,$second){
+            return $first->name > $second->name;
+        });
+
+        return $this->accountNames;
+    }
+
+    function getNext($url, $count, $max){
+        $col = [];
+        
+        if($count > $max){
+            return $col;
+        }
+
+        $httpClient = $this->getHttpClient($url);
+        $events = $httpClient->Get();
+        //print_r($events);
+
+
+        $col = $events["data"]; 
+        echo $events["links"]["next"] . "</br>";
+        if($events["links"]["next"] != null){
+            $col = $this->getNext(urldecode($events["links"]["next"]), $count++, $max);
+        }
+        //print_r($col);
+        return $col;
     }
 }
 
 if(isset($_GET["apiKey"])){
     //$klaviyo = new Klaviyo($_GET["apiKey"]);
     $dataPath = $_SERVER['DOCUMENT_ROOT']. "/dashboard_data";
-    $config = json_decode(file_get_contents($dataPath . '/config.json'), true);
+    $config = json_decode(file_get_contents($dataPath . '/config_test.json'), true);
 	$config_global = json_decode(file_get_contents($dataPath . '/config_global.json'), true);
     
     $klaviyo = new Klaviyo(getAccounts("klaviyo", $config["accounts"]), getAccounts("klaviyo", $config_global["accounts"]));
 
     //$klaviyo->getCampaignData($emailsSent, $emailsOpened, $emailsClicked, $ordersPlaced, $startDate, $endDate);
     $campaigns = $klaviyo->getCampaigns();
+    //echo count($campaigns);
     echo json_encode($campaigns);
     //print_r($emailsOpened);
 }

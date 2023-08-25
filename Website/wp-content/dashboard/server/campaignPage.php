@@ -12,7 +12,7 @@ require_once("common.php");
 
 if(!Base::IsElementor()){ ?>
 
-  .template {
+  .template, .dataTabs {
 		display:none;
   }
 
@@ -64,29 +64,75 @@ if(!Base::IsElementor()){ ?>
 
     $klaviyo = new Klaviyo(getAccounts("klaviyo", $config["accounts"]), getAccounts("klaviyo", $config_global["accounts"]));
 	$campaigns = $klaviyo->getCampaigns();//Campaign::getCampaigns([ "Test 1", "Test 2", "Test3", "Test4"], [ "2023-07-01T00:00:00+00:00" ], [ 120, 100, 50, 76 ], [ 80, 60, 19, 5 ], [ 12, 5, 1, 0 ], [3, 5, 3, 2]);
+	$accounts = $klaviyo->getAccounts();
 	$campaignsJson = json_encode(array_values($campaigns));
-
+	$accountsJson = json_encode($accounts);
 ?>
 <script>
 <?php
 	echo "campaigns = {$campaignsJson};";
-?>
+	echo "accounts = {$accountsJson};";
+?>	
 
+	updateData();
 
-	insertData(campaigns, ".tabError", function(metric) {
-			return metric["isError"];
+	function updateData(accountId = ''){
+		jQuery('.dataTabs').hide();	
+		jQuery('.spinner').fadeIn();
+		jQuery('.template').hide();
+
+		jQuery('.templateCampaignsAdded').remove();
+
+		hasErrors = insertData(campaigns, ".tabError", function(metric, parent) {
+				return metric["isError"] && (accountId == '' || accountId == parent["accountId"]);
+			});
+
+		hasWarnings = insertData(campaigns, ".tabWarning", function(metric, parent) {
+				return metric["isWarning"] && (accountId == '' || accountId == parent["accountId"]);
+			});
+
+		insertData(campaigns, ".tabOK", function(metric, parent) {
+			return !metric["isError"] && !metric["isWarning"] && (accountId == '' || accountId == parent["accountId"]);
 		});
 
-	insertData(campaigns, ".tabWarning", function(metric) {
-			return metric["isWarning"];
-		});
+		clickButton = "";
+		if(hasErrors == 0){
+			jQuery('.templateNoErrors').show();
+			if(hasWarnings == 0){
+				jQuery('.templateNoWarnings').show();
+				clickButton = "#tabOK";
 
-	insertData(campaigns, ".tabOK", function(metric) {
-		return !metric["isError"] && !metric["isWarning"]; 
+			}
+			else{
+				clickButton = "#tabWarning";
+			}
+		}
+
+		setTimeout(function(){ 
+			if(clickButton != ''){
+				jQuery(clickButton).click();
+			}
+			jQuery('.dataTabs').fadeIn();
+			jQuery(".spinner").hide(); 
+		}, 1000 );
+	}
+
+	for(iA = 0; iA < accounts.length; iA++){
+		jQuery("#ddAccounts").append(
+			jQuery('<option>', { value: accounts[iA]["id"], text : accounts[iA]["name"] })
+		);
+	}
+
+	
+
+	jQuery('#ddAccounts').on('change', function(){
+		accountId = jQuery(this).val();
+		updateData(accountId);
+
 	});
 
 	function insertData(campaigns, selector, filter){
-		updateAndInsertTemplateRows(".templateCampaigns", ".templateCampaign", campaigns,  
+		return updateAndInsertTemplateRows(".templateCampaigns", ".templateCampaign", campaigns,  
 		[ "campaignName", "name", "accountName", "accountName", "campaignId", "id" ], "metrics", [ "metricName", "name", 
 		"thisPeriod", "thisPeriod", "lastPeriod", "lastPeriod", "deviation", "deviation", "class", "class", "arrow", "arrow", "days", "days" ], jQuery(selector), filter);
 

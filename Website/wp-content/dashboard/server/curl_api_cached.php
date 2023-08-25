@@ -44,6 +44,9 @@ class Curl_Cached extends Curl{
     }
 
     public function getCacheFileContent($key){
+        if(isset($_GET["debug"])){
+            echo "<br/>HASH: " . $this->hash . "<br/>";
+        }
         $path = getDataPath() . "/" . $this->hash;
         
         if(!is_dir($path)){

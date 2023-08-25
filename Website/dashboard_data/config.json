@@ -2,11 +2,15 @@
   "accounts": [
     {
       "name": "klaviyo",
-      "apiKey": "pk_d0a01ce4aab6b2827fa271988aeab5f8c2"
+      "apiKey": "pk_9cb5b0f09b6a5d8f9c8ef28622bff8bf60"
     },
     {
       "name": "klaviyo",
-      "apiKey": "pk_9cb5b0f09b6a5d8f9c8ef28622bff8bf60"
+      "apiKey": "pk_5b984c0dda4b353a79755e3c73450a2471"
+    },
+    {
+      "name": "klaviyo",
+      "apiKey": "pk_d0a01ce4aab6b2827fa271988aeab5f8c2"
     },
     {
       "name": "klaviyo",

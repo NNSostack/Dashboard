@@ -55,14 +55,17 @@ function updateAndInsertTemplateRows(selectorOuter, selectorInner, itemsToInsert
 
 	items = [];
 
+	itemsActive = 0;
+
 	for (i = 0; i < itemsToInsert.length; i++) {
 		itemToInsert = itemsToInsert[i];
 		for (inner = 0; inner < itemToInsert[innerItems].length; inner++) {
 			innerItem = itemToInsert[innerItems][inner];
 
-			if (filter != null && !filter(innerItem)) {
+			if (filter != null && !filter(innerItem, itemToInsert)) {
 				continue;
-            }
+			}
+			itemsActive++;
 
 			if (columnNo % numberOfCols == 0) {
 				item = templateOuter.clone();
@@ -98,6 +101,8 @@ function updateAndInsertTemplateRows(selectorOuter, selectorInner, itemsToInsert
 		(target ?? templateOuter).before(items[i]);
 		items[i].fadeIn();
 	}
+
+	return itemsActive;
 }
 
 function waitAWhile(milliseconds, callback) {
