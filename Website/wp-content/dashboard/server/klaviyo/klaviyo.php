@@ -46,7 +46,7 @@ class Klaviyo {
             return -1;
         }
 
-        return $this->metrics[$name];
+        return $this->metrics[$name][0][0];
     }
 
     private function getCampaignId($name){
@@ -64,7 +64,11 @@ class Klaviyo {
         $metrics = $httpClient->Get();
         
         foreach($metrics["data"] as $metric){
-            $this->metrics[strtolower($metric["attributes"]["name"])] = $metric["id"];
+            $key = strtolower($metric["attributes"]["name"]);
+            if(!array_key_exists($key, $this->metrics)){
+                $this->metrics[$key] = [];
+            }
+            array_push($this->metrics[$key], [ $metric["id"], $metric["attributes"]["integration"]["name"] ]);
         }
     } 
 
@@ -101,15 +105,25 @@ class Klaviyo {
         $httpClient = $this->getHttpClient("https://a.klaviyo.com/api/metric-aggregates/", 10);
 
         $metrics = [];
-        foreach($metricsForAccount as $metric){
-            $m = new Metric($metric);
+        foreach($metricsForAccount as $metricConfig){
+            $key = strtolower($metricConfig["name"]);
+            if(array_key_exists($key, $this->metrics)){
+                $noOf = 2;
+                foreach($this->metrics[$key] as $metric){
+                    $m = new Metric($metricConfig);
             
-            if($this->setDataByMetric($m->name, $httpClient, $m->data, $startDate, $endDate)){
-                /*if($m->config["ParentMetric"] != null){
-                    $this->setDataByMetric($m->config["ParentMetric"], $httpClient, $m->parentData, $startDate, $endDate);
-                }*/
+                    if($this->setDataByMetric($metric[0], $httpClient, $m->data, $startDate, $endDate)){
+                        if(count($this->metrics[$key]) > 1){
+                            $m->name = $m->name . " ({$metric[1]})";
+                            if(array_key_exists($m->name, $metrics)){
+                                $m->name = $m->name . "({$noOf})";
+                                $noOf++;
+                            }
 
-                $metrics[$m->name] = $m;
+                        }
+                        $metrics[$m->name] = $m;
+                    }
+                }
             }
         }
 
@@ -221,6 +235,10 @@ class Klaviyo {
                     }
                 }
                 
+                if($campaign->metrics[$index]["lastPeriod"] == 0 && $campaign->metrics[$index]["thisPeriod"] == 0){
+                    $campaign->metrics[$index]["isWarning"] = true;
+                }
+                
                 $campaign->metrics[$index]["arrow"] = $dev > 0 ? '↑' : ($dev < 0 ? '↓' : "");
                 $campaign->metrics[$index]["class"] = $campaign->metrics[$index]["isError"] ? "errorText" : ($campaign->metrics[$index]["isWarning"] ? "warningText" : "okText");
                 $campaign->metrics[$index]["days"] = $timespanSize;
@@ -229,11 +247,7 @@ class Klaviyo {
     }
 
     //  Returns an array [ date, campaingName] = value;
-    private function setDataByMetric($metricName, $httpClient, &$metricData, $startDate, $endDate){
-        $metricId = $this->getMetricId($metricName);
-        if($metricId == -1){
-            return false;
-        }
+    private function setDataByMetric($metricId, $httpClient, &$metricData, $startDate, $endDate){
 
         $data = str_replace("[metric_id]", $metricId, $this->campaignBodyTemplate);
         $data = str_replace("[start_date]", $startDate, $data);

@@ -47,13 +47,8 @@ class Curl_Cached extends Curl{
         if(isset($_GET["debug"])){
             echo "<br/>HASH: " . $this->hash . "<br/>";
         }
-        $path = getDataPath() . "/" . $this->hash;
-        
-        if(!is_dir($path)){
-            mkdir($path);
-        }
 
-        $cacheFile = $path . "/" . getHash($key) . ".json";
+        $cacheFile = $this->getCacheFile($key);
 
         $ret = null;
 
@@ -74,13 +69,25 @@ class Curl_Cached extends Curl{
             return;
         }
     
-        $path = getDataPath() . "/" . $this->hash;
+        $cacheFile = $this->getCacheFile($key);
+
+        file_put_contents($cacheFile, json_encode($obj));
+    }
+
+    function getCacheFile($key){
+        $path = getDataPath() . "/cache/";
         
         if(!is_dir($path)){
             mkdir($path);
         }
 
+        $path .= $this->hash;
+
+        if(!is_dir($path)){
+            mkdir($path);
+        }
+
         $cacheFile = $path . "/" . getHash($key) . ".json";
-        file_put_contents($cacheFile, json_encode($obj));
+        return $cacheFile;
     }
 }
