@@ -76,7 +76,7 @@ if(!Base::IsElementor()){ ?>
 
 	updateData();
 
-	function updateData(accountId = ''){
+	function updateData(accountId = '', timeout = 1000){
 		jQuery('.dataTabs').hide();	
 		jQuery('.spinner').fadeIn();
 		jQuery('.template').hide();
@@ -95,7 +95,7 @@ if(!Base::IsElementor()){ ?>
 			return !metric["isError"] && !metric["isWarning"] && (accountId == '' || accountId == parent["accountId"]);
 		});
 
-		clickButton = "";
+		clickButton = "#tabError";
 		if(hasErrors == 0){
 			jQuery('.templateNoErrors').show();
 			if(hasWarnings == 0){
@@ -114,7 +114,7 @@ if(!Base::IsElementor()){ ?>
 			}
 			jQuery('.dataTabs').fadeIn();
 			jQuery(".spinner").hide(); 
-		}, 1000 );
+		}, timeout );
 	}
 
 	for(iA = 0; iA < accounts.length; iA++){
@@ -127,7 +127,7 @@ if(!Base::IsElementor()){ ?>
 
 	jQuery('#ddAccounts').on('change', function(){
 		accountId = jQuery(this).val();
-		updateData(accountId);
+		updateData(accountId, 500);
 
 	});
 
